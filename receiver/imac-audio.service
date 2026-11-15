@@ -1,0 +1,19 @@
+[Unit]
+Description=GC555 HDMI stereo audio to iMac speakers
+After=sound.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+Environment=ALSA_CONFIG_PATH=/opt/imac-receiver/receiver/audio-alsa.conf
+EnvironmentFile=/etc/imac-audio.conf
+ExecStart=/usr/bin/python3 /opt/imac-receiver/receiver/audio.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

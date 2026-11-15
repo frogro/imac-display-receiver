@@ -1,0 +1,40 @@
+--- a/gc555-fpga.c
++++ b/gc555-fpga.c
+@@ -625,6 +625,27 @@
+ 	       config->output_frame_rate_hz == config->input_frame_rate_hz;
+ }
+ 
++/* Observed on GC555 with an Intel HDMI source at 2160p30 SDR.
++ * Reuse the existing BT.709 limited-range RGB-to-YUV matrix. Keep this
++ * addition limited to native YUYV capture and the validated transport.
++ */
++static bool
++gc555_fpga_is_native_4k30_rgb_limited(
++	const struct gc555_fpga_video_config *config)
++{
++	return config->input_class == GC555_VIDEO_INPUT_UHD &&
++	       config->input_width == 3840 && config->input_height == 2160 &&
++	       config->output_width == 3840 && config->output_height == 2160 &&
++	       config->input_frame_rate_hz == 30 &&
++	       config->output_frame_rate_hz == 30 &&
++	       config->input_encoding == GC555_VIDEO_ENCODING_RGB_LIMITED &&
++	       config->input_sampling == GC555_VIDEO_SAMPLING_RGB &&
++	       config->input_colorimetry == GC555_VIDEO_COLORIMETRY_BT709 &&
++	       config->input_hdr_mode == GC555_VIDEO_HDR_SDR &&
++	       config->output_format == GC555_VIDEO_FORMAT_YUYV &&
++	       !config->interlaced && config->dual_pixel && config->ddr;
++}
++
+ static bool
+ gc555_fpga_is_native_4k_low_rate(
+ 	const struct gc555_fpga_video_config *config)
+@@ -1007,7 +1028,8 @@
+ 	     !native_1440_high_rate_yuv444 && !native_2560x1080p60_rgb &&
+ 	     !native_1080p_low_rate_rgb_limited &&
+ 	     !native_1080i_rgb_limited && !native_720p_rgb_limited &&
+-	     !native_broadcast_sd_rgb_limited && !native_hdr_p010) ||
++	     !native_broadcast_sd_rgb_limited && !native_hdr_p010 &&
++	     !gc555_fpga_is_native_4k30_rgb_limited(config)) ||
+ 	    (!native_cea_yuv &&
+ 	     config->input_sampling != GC555_VIDEO_SAMPLING_RGB &&
+ 	     !native_1440_high_rate_yuv444 && !native_hdr_p010) ||

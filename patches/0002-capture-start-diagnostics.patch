@@ -1,0 +1,15 @@
+--- a/gc555-video.c
++++ b/gc555-video.c
+@@ -970,6 +970,12 @@
+ 	ret = gc555_link_get_video_signal(gc555, &signal);
+ 	if (ret)
+ 		goto fail;
++	dev_info(gc555->dev,
++		 "capture request: %ux%u rate=%u class=%u encoding=%u sampling=%u colorimetry=%u hdr=%u dual=%u ddr=%u interlaced=%u output=%u\n",
++		 signal.width, signal.height, signal.frame_rate_hz,
++		 signal.input_class, signal.encoding, signal.sampling,
++		 signal.colorimetry, signal.hdr_mode, signal.dual_pixel,
++		 signal.ddr, signal.interlaced, video->format_info->format);
+ 	if (!gc555_video_supports_signal(video->format_info, &signal)) {
+ 		ret = -EOPNOTSUPP;
+ 		goto fail;

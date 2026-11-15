@@ -1,0 +1,23 @@
+--- a/gst-libs/gst/gl/gstglutils.c
++++ b/gst-libs/gst/gl/gstglutils.c
+@@ -946,10 +946,17 @@
+           &dma_modifiers))
+     return;
+ 
+-  /* No modifier info, lets warn and move on */
++  /* Match the existing EGL support helper for formats whose driver returns
++   * no explicit modifier list. Keep the normal advertised-modifier path below.
++   * This only fixes caps: actual export/import must still succeed. */
+   if (!dma_modifiers) {
+-    GST_WARNING_OBJECT (context, "Undefined modifiers list for %"
+-        GST_FOURCC_FORMAT, GST_FOURCC_ARGS (fourcc));
++    if (gst_gl_context_egl_format_supports_modifier (context, fourcc,
++            DRM_FORMAT_MOD_LINEAR,
++            flags & GST_GL_DRM_FORMAT_INCLUDE_EXTERNAL)) {
++      drm_format =
++          gst_video_dma_drm_fourcc_to_string (fourcc, DRM_FORMAT_MOD_LINEAR);
++      g_ptr_array_add (drm_formats, drm_format);
++    }
+     return;
+   }
+ 

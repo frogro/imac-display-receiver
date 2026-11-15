@@ -1,0 +1,22 @@
+name: Source and installer checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    container: debian:trixie
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Install test dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-gi python3-numpy gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad build-essential patch
+      - name: Verify vendored source and shell syntax
+        run: |
+          sha256sum --quiet -c third_party/SOURCES.sha256
+          for file in tools/*.sh; do bash -n "$file"; done
+      - name: Run pipeline, supervisor, audio and installer tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Check scope of 4K driver correction
+        run: python3 tests/check_fpga_policy.py

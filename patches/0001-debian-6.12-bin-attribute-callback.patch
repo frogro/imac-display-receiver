@@ -1,0 +1,11 @@
+--- a/gc555-core.c
++++ b/gc555-core.c
+@@ -19,7 +19,7 @@
+ 
+ static ssize_t
+ input_edid_read(struct file *file, struct kobject *kobj,
+-		const struct bin_attribute *attr, char *buf, loff_t offset,
++		struct bin_attribute *attr, char *buf, loff_t offset,
+ 		size_t count)
+ {
+ 	struct gc555_dev *gc555 = dev_get_drvdata(kobj_to_dev(kobj));
