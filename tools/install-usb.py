@@ -39,7 +39,7 @@ def validate_disk(node, required_bytes):
     return (node['path'], node['serial'], int(node['size']))
 
 def inspect_disk(device, required_bytes):
-    info = json.loads(run('lsblk','--json','--bytes','--paths','--output',
+    info = json.loads(run('lsblk','--json','--tree','--bytes','--paths','--output',
                          'PATH,TYPE,TRAN,SIZE,MODEL,SERIAL,RO,MOUNTPOINTS',str(device)))
     if len(info['blockdevices']) != 1:
         raise ValueError('Ambiguous device selection.')
@@ -128,7 +128,7 @@ def grow_root(device, identity, size):
     if len(children) != 2:
         raise ValueError('Expected exactly two receiver partitions.')
     root = next((Path(p['path']) for p in children
-                 if run('lsblk','-dnro','PARTN',p['path']) == '2'), None)
+                 if (Path('/sys/class/block') / Path(p['path']).name / 'partition').read_text().strip() == '2'), None)
     if root is None or run('blkid','-s','LABEL','-o','value',str(root)) != 'IMAC-ROOT':
         raise ValueError('Receiver root partition identity mismatch.')
     if run('blkid','-s','TYPE','-o','value',str(root)) != 'ext4':
