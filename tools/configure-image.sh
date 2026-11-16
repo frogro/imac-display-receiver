@@ -39,12 +39,13 @@ bash tools/build-gpu.sh
 cp receiver/imac-receiver.conf /etc/
 sed -i 's/^GPU_ENABLED=.*/GPU_ENABLED=1/; s|^GPU_BUNDLE=.*|GPU_BUNDLE=/opt/imac-receiver/gpu|' /etc/imac-receiver.conf
 cp receiver/imac-audio.conf /etc/
-cp receiver/imac-{receiver,audio}.service /etc/systemd/system/
+cp receiver/imac-{receiver,audio,equalizer}.service /etc/systemd/system/
 cp vendor/gc555/udev/70-gc555.rules /etc/udev/rules.d/
 chmod +x receiver/launch.sh
 printf 'imac-receiver\n' > /etc/hostname
 printf '127.0.0.1 localhost\n127.0.1.1 imac-receiver\n::1 localhost ip6-localhost\n' > /etc/hosts
 useradd -m -s /bin/bash -G sudo,video,render,audio receiver
+useradd --system --no-create-home --shell /usr/sbin/nologin imac-equalizer
 printf 'receiver ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/receiver
 chmod 440 /etc/sudoers.d/receiver
 mkdir -p /etc/systemd/system/getty@tty2.service.d /etc/ssh/sshd_config.d /etc/systemd/journald.conf.d
@@ -58,7 +59,7 @@ printf '[Journal]\nStorage=persistent\nSystemMaxUse=128M\n' > /etc/systemd/journ
 mkdir -p /var/log/journal /var/log/imac-receiver
 systemctl disable ssh.service
 # Shared image has no authorized key, SSH host identity or machine identity.
-systemctl enable NetworkManager imac-receiver imac-audio getty@tty2
+systemctl enable NetworkManager imac-receiver imac-audio imac-equalizer getty@tty2
 systemctl set-default multi-user.target
 printf 'MODULES=most\n' > /etc/initramfs-tools/conf.d/receiver
 printf 'usb_storage\nuas\nxhci_pci\namdgpu\n' >> /etc/initramfs-tools/modules

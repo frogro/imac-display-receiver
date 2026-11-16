@@ -109,3 +109,10 @@ retain their own licenses. No TargetBridge source was copied.
 
 The repository publishes source, not private recordings, device identities,
 SSH credentials or a clone of an installed system.
+
+## Live speaker equalizer
+
+The receiver includes a local browser control at `http://imac-receiver.local:8787/`
+(or its LAN IP). Bass, midrange, treble, volume and mute apply without restarting
+audio. Custom sound profiles survive reboot. The speaker crossover and high-pass
+filter remain active. See [setup, access code and rollback](docs/equalizer.md).
